@@ -61,6 +61,8 @@ private:
 
     std_msgs::Header currentHeader;
 
+    std::string frame_init, frame_camera;
+
 public:
 
     TransformFusion(){
@@ -69,16 +71,19 @@ public:
         subLaserOdometry = nh.subscribe<nav_msgs::Odometry>("/laser_odom_to_init", 5, &TransformFusion::laserOdometryHandler, this);
         subOdomAftMapped = nh.subscribe<nav_msgs::Odometry>("/aft_mapped_to_init", 5, &TransformFusion::odomAftMappedHandler, this);
 
-        laserOdometry2.header.frame_id = "/camera_init";
-        laserOdometry2.child_frame_id = "/camera";
+        frame_init = nh.param<std::string>("frame_init","odom");
+        frame_camera = nh.param<std::string>("frame_camera","camera");
 
-        laserOdometryTrans2.frame_id_ = "/camera_init";
-        laserOdometryTrans2.child_frame_id_ = "/camera";
+        laserOdometry2.header.frame_id = frame_init;
+        laserOdometry2.child_frame_id = frame_camera;
+
+        laserOdometryTrans2.frame_id_ = frame_init;
+        laserOdometryTrans2.child_frame_id_ = frame_camera;
 
         map_2_camera_init_Trans.frame_id_ = "/map";
-        map_2_camera_init_Trans.child_frame_id_ = "/camera_init";
+        map_2_camera_init_Trans.child_frame_id_ = frame_init;
 
-        camera_2_base_link_Trans.frame_id_ = "/camera";
+        camera_2_base_link_Trans.frame_id_ = frame_camera;
         camera_2_base_link_Trans.child_frame_id_ = "/base_link";
 
         for (int i = 0; i < 6; ++i)

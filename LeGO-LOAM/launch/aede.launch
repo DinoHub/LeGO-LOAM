@@ -1,0 +1,30 @@
+<launch>
+    <arg name="frame_init" default="odom" />
+    <arg name="frame_camera" default="camera"/>
+
+    <!--- Sim Time -->
+    <param name="/use_sim_time" value="true" />
+
+    <!--- Run Rviz-->
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find lego_loam)/launch/test.rviz" />
+
+    <!--- TF -->
+    <node pkg="tf" type="static_transform_publisher" name="camera_init_to_map"  args="0 0 0 1.570795   0        1.570795 /map    odom 10" />
+    <node pkg="tf" type="static_transform_publisher" name="base_link_to_camera" args="0 0 0 -1.570795 -1.570795 0        camera /base_link 10" />
+
+    <!--- LeGO-LOAM -->    
+    <node pkg="lego_loam" type="imageProjection"    name="imageProjection"    output="screen"/>
+    <node pkg="lego_loam" type="featureAssociation" name="featureAssociation" output="screen">
+        <param name="frame_init" value="$(arg frame_init)" />
+        <param name="frame_camera" value="$(arg frame_camera)" />
+    </node>
+
+    <node pkg="lego_loam" type="mapOptmization"     name="mapOptmization"     output="screen">
+        <param name="frame_init" value="$(arg frame_init)" />
+    </node>
+
+    <node pkg="lego_loam" type="transformFusion"    name="transformFusion"    output="screen">
+        <param name="frame_init" value="$(arg frame_init)" />
+        <param name="frame_camera" value="$(arg frame_camera)" />
+    </node>
+</launch>
